@@ -6,7 +6,7 @@
 #    By: calleaum <calleaum@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/14 09:07:48 by calleaum          #+#    #+#              #
-#    Updated: 2025/10/14 14:05:38 by calleaum         ###   ########.fr        #
+#    Updated: 2025/10/20 11:47:31 by calleaum         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ NAME    = btc
 CXX     = c++
 CXXFLAGS= -Wall -Wextra -Werror -std=c++98 -Iinclude
 
-SRC     = src/main.cpp src/BitcoinExchange.cpp src/DataParser.cpp
+SRC     = src/main.cpp src/PmergeMe.cpp
 OBJ     = $(SRC:.cpp=.o)
 
 all: $(NAME)
