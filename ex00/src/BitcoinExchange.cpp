@@ -39,13 +39,17 @@ BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &other)
 
 void BitcoinExchange::setData(const std::string &filename)
 {
+	// Open data.csv and throw an exception if the file can't be opened
 	std::ifstream file(filename.c_str());
 	if (!file)
 		throw FileException();
 
+	// Read and ignore the first line
 	std::string line;
 	std::getline(file, line);
 
+	// Read each line of the CSV, parse the date and value and insert into the map
+	// Invalid lines are skipped with a warning
 	while (std::getline(file, line))
 	{
 		std::istringstream ss(line);
@@ -70,17 +74,22 @@ void BitcoinExchange::setData(const std::string &filename)
 
 void BitcoinExchange::exchange(const std::string &filename) const
 {
+	// Open the input file
 	std::ifstream file(filename.c_str());
 	if (!file)
 		throw FileException();
+
+	// Read and ignore the first line
 	std::string line;
 	std::getline(file, line);
 
+	// Read each line of the input file
 	while (std::getline(file, line))
 	{
 		std::istringstream ss(line);
 		std::string dateStr, valueStr;
 
+		// Split the line into date and value
 		if (std::getline(ss, dateStr, '|') && std::getline(ss, valueStr)) {
 			dateStr.erase(dateStr.find_last_not_of(" \t") + 1);
 			dateStr.erase(0, dateStr.find_first_not_of(" \t"));
@@ -89,8 +98,11 @@ void BitcoinExchange::exchange(const std::string &filename) const
 
 			try
 			{
+				// Convert inputs
 				time_t date = DataParser::strtot(dateStr);
 				float value = DataParser::strtof(valueStr);
+
+				// Find the closest previous rate
 				std::map<time_t, float>::const_iterator it = data.upper_bound(date);
 				if (it != data.begin())
 					--it;
@@ -99,6 +111,7 @@ void BitcoinExchange::exchange(const std::string &filename) const
 					std::cerr << "Error: no rate available before " << dateStr << std::endl;
 					continue;
 				}
+				// Apply rate and print result
 				float rate = it->second;
 				std::cout << dateStr << " => " << value << " = " << value * rate << std::endl;
 			}
