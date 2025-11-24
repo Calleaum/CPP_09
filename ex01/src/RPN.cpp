@@ -6,7 +6,7 @@
 /*   By: calleaum <calleaum@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 10:37:21 by calleaum          #+#    #+#             */
-/*   Updated: 2025/10/20 10:53:09 by calleaum         ###   ########.fr       */
+/*   Updated: 2025/11/24 10:00:42 by calleaum         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,14 @@ static bool isOperator(char c)
 
 size_t RPN::parseValue(const std::string &str, size_t start)
 {
+	// Pointer to the beginning of the string to convert into a number
 	const char *cstr = str.c_str() + start;
 	char *end = NULL;
 	
 	errno = 0;
 	double value = std::strtod(cstr, &end);
 	
+	// Check conversion errors
 	if (errno == ERANGE)
 	{
 		if (value == HUGE_VAL || value == -HUGE_VAL)
@@ -60,7 +62,9 @@ size_t RPN::parseValue(const std::string &str, size_t start)
 	}
 	if (end == cstr)
 		throw std::runtime_error("syntax error");
+	// Store number on the stack
 	this->stack.push(value);
+	// Return how many characters were read
 	return (static_cast<size_t>(end - cstr));
 }
 
@@ -83,22 +87,19 @@ void RPN::doOp(char op)
 	this->stack.pop();
 	double a = this->stack.top();
 	this->stack.pop();
-
 	double result;
+	
+	// Apply operator
 	switch (op)
 	{
 		case '+':
-			result = a + b;
-			break;
+			result = a + b; break;
 		case '-':
-			result = a - b;
-			break;
+			result = a - b; break;
 		case '*':
-			result = a * b;
-			break;
+			result = a * b; break;
 		case '/':
-			result = a / b;
-			break;
+			result = a / b; break;
 		default:
 			throw std::invalid_argument("invalid operation");
 	}
@@ -109,16 +110,18 @@ double RPN::compute(const std::string &str)
 {
 	size_t len = 0;
 	
+	// Read entire expression
 	while (len < str.size())
 	{
 		len += skipSpace(str, len);
 		if (len >= str.size())
 			break;
-		
+		// Try number
 		try
 		{
 			len += this->parseValue(str, len);
 		}
+		// Otherwise operator
 		catch (const std::runtime_error &)
 		{
 			len += this->parseOp(str, len);
@@ -128,6 +131,7 @@ double RPN::compute(const std::string &str)
 		throw std::logic_error("too many operands");
 	if (this->stack.empty())
 		throw std::logic_error("empty expression");
+	// Get result
 	double res = this->stack.top();
 	this->stack.pop();
 	return (res);
